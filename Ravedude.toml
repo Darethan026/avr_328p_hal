@@ -1,0 +1,5 @@
+[general]
+open-console = true
+serial-baudrate = 115200
+board = "uno"
+output-mode = "ascii"
