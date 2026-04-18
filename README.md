@@ -55,8 +55,8 @@ I've written the GPIO(General-Purpose Input/Output) drivers that covers all the 
 
 ```rust
 
-use avr_328p::gpio;
-use avr_328p::timers;
+use avr_328p_hal::gpio;
+use avr_328p_hal::timers;
 
 use gpio::*;
 use timers::{Timer0, Timer1, Prescaler};
