@@ -1,0 +1,93 @@
+# avr_328p_hal: An Avr HAL for the Arduino Uno R3
+
+After reaching chapter 8 of the rust book a couple of weeks ago, I decided to take a short break, because I thought of working on a project that had been on my mind for a while - this bare-metal Hardware Abstraction Layer(HAL) in the rust programming language, just to understand how the hardware works underneath all these libraries.
+
+## Current Status
+
+| Feature       | Status         | Description                                   |
+|:--------------|:---------------|:----------------------------------------------|
+| **GPIO**      | ✅ Completed   | DDRx for PORTB, PORTC, and PORTD              |
+| **Timer0**    | ✅ Completed   | Normal and CTC modes with `delay_ms()`.       |
+| **Timer1**    | ✅ Completed   | Normal, CTC, and Mode 14 PWM.                 |
+| **USART0**    | ✅ Completed   | Async/Sync modes with auto-baud calculation.  |
+| **ADC**       |  In Progress   | Analog-to-Digital drivers.                    |
+| **SPI & I2C** | 📅 Planned     | Future hardware support.                      |
+
+### Completed Drivers
+
+I've written the GPIO(General-Purpose Input/Output) drivers that covers all the Data direction registers(`DDRx`) for `PORTB`, `PORTC`, and `PORTD`. It implements setting the pins as input and output, and also setting them high, setting them low, and cheking whether they're high. Below are the other implemented drivers and the ones currently in progress, including the ones I've planned.
+
+- **Timers** - Implemented `Timer0` and `Timer1`. I implemented Normal mode and CTC mode for `Timer0`, including the `delay_ms()` method for setting delays. For `Timer1`, I implemented Normal mode, CTC mode, and Mode 14 PWM for PWM. For mode 14 PWM, the ICR1 value is used as top. I'm not planning to implement timer2 or any other modes for timer0 and timer1.
+
+- **USART0** - I've implemented the `USART0` driver and it can be used in Normal Asynchronous mode, Double speed Asynchronous mode, and Master Synchronous mode. Instead of the user calculating the values manually, the `set_baud_rate()` method in the `USART0` driver does the calculation based on the UBRRn u32 value used by the user and it finds the UBRRn value to be used to calculate the baud rate. The calculated u32 value is split and cast as a u8, and the high byte is pushed to the USART Baud rate register high (`UBRR0H`), and from the 'discarded' bits, from the least significant bit, 8 bits of the  UBRRn value are pushed to the USART Baud rate register low (`UBRR0L`). After a lot of testing and troubleshooting, I found an issue, not with the driver, but with how the linker file maps the memory. Due to how the Atmega328p maps memory, flash and RAM have the same address but are stored at different location. The lack of me using a `startup.rs` file to manage the ram locations and how data is moved from flash to ram, any character more than one being handled by the `send_string()` method causes a bug where it tries to read its value from RAM, but instead of finding the `&str`, which contains more than one character, it looks at an area of ram where the string slice hasn't been moved from flash to RAM. Because of this, t's uninitialised, and therefore any character more than one being sent at once using the `send_string()` method shows garbage on the serial line, although it works with single characters, or the same character repetead whatever the number of times. This is due to using a basic linker file as everything else like initialising the memory with a `startup.rs` file isn't happening due to its complexity in bare-metal Rust, which is still new and a Tier 3 target, so this is the basic workaround to make the HAL work.
+
+### Drivers in progress
+
+- **ADC** - In Progress
+
+- **SPI** - Planned
+
+- **I2C(TWI)** - Planned
+
+## Features
+
+- **Zero dependencies:** This project does not use the standard library or HAL crates.
+
+- **Encapsulation:** There are struct implementations for the drivers and inside them methods including public functions encapsulating the actual work happening in the unsafe functions.
+
+- **Register-level control:** This project purely works by accessing the memory mapped registers on the board using the avr-atmega328p datasheet as a reference, and doesn't have overhead since it doesn't use any external libraries.
+
+- **Reusability:** Since I wrote the drivers and implemented the methods to use them, instead of mapping the registers in the different drivers again - and even for the projects, I used the methods in the implementations instead of having redundant code.
+
+## Prerequisites
+
+- **rustup**
+- **rustup nightly**
+- **avrdude**
+- **avr-gcc**
+- **ravedude** (`cargo install ravedude`)
+- **rust-src** (`Install using rustup`)
+- **A linker file**
+
+## How to use
+
+### Blink the on-board PB5 Led.
+
+```rust
+
+use avr_328p::gpio;
+use avr_328p::timers;
+
+use gpio::*;
+use timers::{Timer0, Timer1, Prescaler};
+
+#[unsafe(no_mangle)]
+pub extern "C" fn main() -> ! {
+
+    let portb = PortB::take().unwrap();
+    let timer = Timer0::take().unwrap();
+
+    portb.set_output(PinB::PB5);
+    timer.start();
+
+    loop {
+        portb.set_high(PinB::PB5);
+        timer.delay_ms(500);
+        portb.set_low(PinB::PB5);
+    }
+}
+
+```
+If you want to see more examples, check the **examples/** directory.
+
+**NOTE:** Make sure you run the code in `release` mode with the rust nightly compiler as it compiles `core` and even if you're using nightly, due to problems with compiler builtins, it only works when you compile it in release mode, otherwise you'll get this error: `error: value evaluated as 122104 is out of range.`, along with `error: could not compile `compiler_builtins` (lib) due to 1 previous error`, even though everything in your code is correct. It only works if you compile it in release mode. You can check my `Cargo.toml` and `.cargo/config.toml` to see my build configurations, as I did a lot of troubleshooting to find out what works. Instead of using a `target.json`, you can use the `avr-none` rust target for avr, although you still need a linker script.
+
+## Goal of this project...
+
+I'm currently 17, and when I first stumbled upon rust around 3 years ago, I fell in love with the language. I got everything I needed to start learning rust, but the learning curve was steep. At the time I wasn't particularly interested in high-level languages like Python or Java or Javascript, so when I started rust it felt like it was **the** language. This was the first language I actually stuck with and was interested in learning. I started learnign it, and got through chapter 1 and reached chapter 3, then I got tired and left it. A couple of months later, the same thign happened. I went back to the book, covered chapter 1 to chapter 3 and even 4, then left it. This happened till early this year (around February), then I decided to go back to the book. I started from chapter 3 since I knew the basics from chapter 1 to chapter 2, and everything clicked. I covered each chapter and made sure I understood before moving on. I finished capter 3, then started chapter 4 and I started understanding the borrow checker, the ownership rules, references and it became more fun. I then did a couple of personal project mainly focusing on references and borrowing. Once that was over, everything else was a breeze. I covered chapter 5 (structs), then chapter 5 (enums and pattern-matching), till I finished chapter 8. I decided to build this HAL to just bridge Rust's high-level concepts with low-level systems programming, and I've been learning more and more as the days have passed. This project has also been interesting since it's been like a 'knowledge-solidifying' process since I noticed it's all about register manipulation, using the datasheet for all the driver implementations. There's a certain way I break binary numbers in my head to convert them back to base 10, and vice versa, and since I understood that, using the bitwise operators was that, but made easier. I noticed what I was doing in my head to multiply numbers by 2^x, that the extra zeroes added was just numbers shifting left, so the `<<` operator was fun to use. The `>>` operator was like removing the numbers on the left side and 'shrinking' them towards the right. The `|` operator as I understood it was a way to manipulate registers but without affecting other bits on the register and only targeting specific bits. I could have a variable like `val` that reads a register and I want to set the fourth bit. I'd do something similar to `let x = val | (1 << 3);` to write a 1 to the 3rd bit on the register. The `^` operator is like a toggle, that clears the bit if it was 1 and if it was zero it sets it to 1. I also used the `&` operator to check certain bits on a specific register without clearing others.
+
+## References
+
+* [AVR-ATmega328P Official Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
+
+* [The Rust Book](https://doc.rust-lang.org/stable/book/)
