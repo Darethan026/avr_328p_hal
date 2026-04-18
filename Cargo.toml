@@ -1,0 +1,13 @@
+[package]
+name = "avr_328p_hal"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+
+[profile.release]
+opt-level = 's'
+panic = "abort"
+debug = false
+lto = true
