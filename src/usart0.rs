@@ -194,5 +194,3 @@ impl USART0 {
 // pg 276 - register descr and pg 159
 
 //pg 148 usart0
-
-// GET THE PROJECT ON GITHUB ASAP
