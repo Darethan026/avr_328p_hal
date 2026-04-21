@@ -65,7 +65,7 @@ impl USART0 {
 					let other_val = core::ptr::read_volatile(Self::UCSR0C);
 
 					// Clear bit 2 (U2X0)
-					core::ptr::write_volatile(Self::UCSR0A, val & !(1 << 2 as u8) & !(1 << 3 as u8) & !(1 << 4 as u8) | (1 << 1 as u8));
+					core::ptr::write_volatile(Self::UCSR0A, val & !(1 << 1 as u8));
 
 					// Set asynchronous USART by clearing bit 6 and 7
 					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6 as u8) & !(1 << 7 as u8));
@@ -86,7 +86,7 @@ impl USART0 {
 					let other_val = core::ptr::read_volatile(Self::UCSR0C);
 
 					// Set the U2X0 bit to 1
-					core::ptr::write_volatile(Self::UCSR0A, val & !(1 << 2 as u8) & !(1 << 3 as u8) & !(1 << 4 as u8) | (1 << 1 as u8));
+					core::ptr::write_volatile(Self::UCSR0A, val | (1 << 1 as u8));
 
 					// Set asynchronous USART by clearing bit 6 and 7
 					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6 as u8) & !(1 << 7 as u8));
@@ -172,8 +172,19 @@ impl USART0 {
 		}
 	}
 
+	/// Send a u16 value
+	pub fn send_u16(&self, value: u16) {
+		unsafe {
+			let high = (value >> 8) as u8;
+			self.transmit_char(high as char);
+
+			let low = (value) as u8;
+			self.transmit_char(low as char);
+		}
+	}
+
 	/// Set the usart to receive
-	pub fn usart_receive(&self) {
+	pub fn usart_receive(&self) -> u8 {
 		unsafe {
 			// Read the value on UCSR0B
 			let val = core::ptr::read_volatile(Self::UCSR0B);
@@ -181,12 +192,14 @@ impl USART0 {
 			// Write a 1 to the receive enable bit (RXEn) in UCSR0B
 			core::ptr::write_volatile(Self::UCSR0B, val | (1 << 4 as u8));
 
-			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 7 as u8) !=0 {
+			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 7 as u8) == 0 {
 				// Wait...
 			}			
 
 			// Read UDR0 to release the contents of RXB
-			core::ptr::read_volatile(Self::UDR0);
+			let contents = core::ptr::read_volatile(Self::UDR0);
+
+			contents
 		}
 	}
 }
