@@ -84,7 +84,7 @@ impl ADC {
     		// Select channel
     		match channel {
     			InputChannel::AnalogPin0 => {
-    				//analog_pins.set_input(PinC::PC0, false);
+    				analog_pins.set_input(PinC::PC0, false);
 
     				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0 as u8) & !(1 << 1 as u8) & !(1 << 2 as u8) & !(1 << 3 as u8));
     			}
