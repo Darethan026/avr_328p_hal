@@ -10,8 +10,8 @@ After reaching chapter 8 of the rust book a couple of weeks ago, I decided to ta
 | **Timer0**    | ✅ Completed   | Normal and CTC modes with `delay_ms()`.       |
 | **Timer1**    | ✅ Completed   | Normal, CTC, and Mode 14 PWM.                 |
 | **USART0**    | ✅ Completed   | Async/Sync modes with auto-baud calculation.  |
-| **ADC**       |  In Progress   | Analog-to-Digital drivers.                    |
-| **SPI & I2C** | 📅 Planned     | Future hardware support.                      |
+| **ADC**       | ✅ Completed   | Analog-to-Digital driver.                     |
+| **SPI & I2C** |  Undecided     | Future hardware support.                      |
 
 ### Completed Drivers
 
@@ -21,13 +21,13 @@ I've written the GPIO(General-Purpose Input/Output) drivers that covers all the 
 
 - **USART0** - I've implemented the `USART0` driver and it can be used in Normal Asynchronous mode, Double speed Asynchronous mode, and Master Synchronous mode. Instead of the user calculating the values manually, the `set_baud_rate()` method in the `USART0` driver does the calculation based on the UBRRn u32 value used by the user and it finds the UBRRn value to be used to calculate the baud rate. The calculated u32 value is split and cast as a u8, and the high byte is pushed to the USART Baud rate register high (`UBRR0H`), and from the 'discarded' bits, from the least significant bit, 8 bits of the  UBRRn value are pushed to the USART Baud rate register low (`UBRR0L`). After a lot of testing and troubleshooting, I found an issue, not with the driver, but with how the linker file maps the memory. Due to how the Atmega328p maps memory, flash and RAM have the same address but are stored at different location. The lack of me using a `startup.rs` file to manage the ram locations and how data is moved from flash to ram, any character more than one being handled by the `send_string()` method causes a bug where it tries to read its value from RAM, but instead of finding the `&str`, which contains more than one character, it looks at an area of ram where the string slice hasn't been moved from flash to RAM. Because of this, t's uninitialised, and therefore any character more than one being sent at once using the `send_string()` method shows garbage on the serial line, although it works with single characters, or the same character repetead whatever the number of times. This is due to using a basic linker file as everything else like initialising the memory with a `startup.rs` file isn't happening due to its complexity in bare-metal Rust, which is still new and a Tier 3 target, so this is the basic workaround to make the HAL work.
 
+- **ADC** - The ADC driver is complete! Unfortunately I can't show code examples for how I use it since I can't send string values or integer values using my `USART0` driver since as I mentioned, I don't have a `startup.rs` file to move variables from flash to ram, thus I personally can't view the values on mine, unless I'm viewing `hexadecimal` values on a particular serial monitor. But fortunately, if you have a startup file that initialises the variables from flash to ram, then you can view the variables on your serial monitor. (**NOTE:** I've tested the driver and it works flawlessly and can be used for ADC.)
+
 ### Drivers in progress
 
-- **ADC** - In Progress
+- **SPI** - Undecided
 
-- **SPI** - Planned
-
-- **I2C(TWI)** - Planned
+- **I2C(TWI)** - Undecided
 
 ## Features
 
@@ -80,7 +80,7 @@ pub extern "C" fn main() -> ! {
 ```
 If you want to see more examples, check the **examples/** directory.
 
-**NOTE:** Make sure you run the code in `release` mode with the rust nightly compiler as it compiles `core` and even if you're using nightly, due to problems with compiler builtins, it only works when you compile it in release mode, otherwise you'll get this error: `error: value evaluated as 122104 is out of range.`, along with `error: could not compile `compiler_builtins` (lib) due to 1 previous error`, even though everything in your code is correct. It only works if you compile it in release mode. You can check my `Cargo.toml` and `.cargo/config.toml` to see my build configurations, as I did a lot of troubleshooting to find out what works. Instead of using a `target.json`, you can use the `avr-none` rust target for avr, although you still need a linker script.
+**NOTE:** Make sure you run the code in `release` mode with the rust nightly compiler as it compiles `core` and even if you're using nightly, due to problems with compiler builtins, it only works when you compile it in release mode, otherwise you'll get this error: `error: value evaluated as 122104 is out of range.`, along with `error: could not compile compiler_builtins (lib) due to 1 previous error`, even though everything in your code may be correct. It only works if you compile it in release mode. You can check my `Cargo.toml` and `.cargo/config.toml` to see my build configurations, as I did a lot of troubleshooting to find out what works. Instead of using a `target.json`, you can use the `avr-none` rust target for avr, although you still need a linker script.
 
 ## Goal of this project...
 
