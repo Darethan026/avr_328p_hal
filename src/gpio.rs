@@ -84,7 +84,7 @@ impl PortB {
     }
 
     /// Set the Pin as output
-    pub fn set_output(&self, pin: PinB) {
+    pub fn set_output(&self, pin: PinB) -> PinB {
         unsafe {
             // Read the pin state
             let val = core::ptr::read_volatile(Self::DDRB);
@@ -92,10 +92,12 @@ impl PortB {
             // Write to the Pin
             core::ptr::write_volatile(Self::DDRB, val | 1 << pin as u8);
         }
+
+        pin
     }
 
     /// Set the pin as an input and for pullup use a bool value, ie, true or false
-    pub fn set_input(&self, pin: PinB, use_pullup: bool) {
+    pub fn set_input(&self, pin: PinB, use_pullup: bool) -> PinB {
         unsafe {
             // Read the Port state
             let port_val = core::ptr::read_volatile(Self::PORTB);
@@ -112,6 +114,8 @@ impl PortB {
             // Write a 0 to the pin to change it to input
             core::ptr::write_volatile(Self::DDRB, val & !(1 << pin as u8));
         }
+
+        pin
     }
 
     /// Set the pin high
@@ -175,7 +179,7 @@ impl PortC {
     }
 
     /// Set the Pin as output pin
-    pub fn set_output(&self, pin: PinC) {
+    pub fn set_output(&self, pin: PinC) -> PinC {
         unsafe {
             // Read the pin state
             let val = core::ptr::read_volatile(Self::DDRC);
@@ -183,10 +187,11 @@ impl PortC {
             // Write to the Pin
             core::ptr::write_volatile(Self::DDRC, val | 1 << pin as u8);
         }
+        pin
     }
 
     /// Set the pin as an input pin
-    pub fn set_input(&self, pin: PinC, use_pullup: bool) {
+    pub fn set_input(&self, pin: PinC, use_pullup: bool) -> PinC {
         unsafe {
             // Read the Port state
             let port_val = core::ptr::read_volatile(Self::PORTC);
@@ -203,6 +208,7 @@ impl PortC {
             // Write a 0 to the pin to change it to input
             core::ptr::write_volatile(Self::DDRC, val & !(1 << pin as u8));
         }
+        pin
     }
 
 
@@ -266,7 +272,7 @@ impl PortD {
     }
 
     /// Set the Pin as output pin
-    pub fn set_output(&self, pin: PinD) {
+    pub fn set_output(&self, pin: PinD) -> PinD {
         unsafe {
             // Read the pin state
             let val = core::ptr::read_volatile(Self::DDRD);
@@ -274,10 +280,11 @@ impl PortD {
             // Write to the Pin
             core::ptr::write_volatile(Self::DDRD, val | 1 << pin as u8);
         }
+        pin
     }
 
     /// Set the pin as an input pin and for pullup, use a bool value, ie, true or false
-    pub fn set_input(&self, pin: PinD, use_pullup: bool) {
+    pub fn set_input(&self, pin: PinD, use_pullup: bool) -> PinD {
         unsafe {
             // Read the Port state
             let port_val = core::ptr::read_volatile(Self::PORTD);
@@ -294,6 +301,7 @@ impl PortD {
             // Write a 0 to the pin to change it to input
             core::ptr::write_volatile(Self::DDRD, val & !(1 << pin as u8));
         }
+        pin
     }
 
     /// Set the pin high
