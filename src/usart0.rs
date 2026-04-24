@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: MIT
 
 #![allow(dead_code)]
+#![allow(unused_unsafe)]
+
 #[repr(u8)]
 #[derive(Copy, Clone)]
 pub enum Mode {
