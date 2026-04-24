@@ -51,7 +51,7 @@ fn panic(_info: &PanicInfo) -> ! {
         
     timer.start();
     
-    // If the program panics, loop forever to stop execution
+    // If the program panics, blink the PB5 LED
     loop {
         portb.set_high(PinB::PB5);
         timer.delay_ms(100);
