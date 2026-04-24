@@ -4,14 +4,15 @@ After reaching chapter 8 of the rust book a couple of weeks ago, I decided to ta
 
 ## Current Status
 
-| Feature       | Status         | Description                                   |
-|:--------------|:---------------|:----------------------------------------------|
-| **GPIO**      | ✅ Completed   | DDRx for PORTB, PORTC, and PORTD              |
-| **Timer0**    | ✅ Completed   | Normal and CTC modes with `delay_ms()`.       |
-| **Timer1**    | ✅ Completed   | Normal, CTC, and Mode 14 PWM.                 |
-| **USART0**    | ✅ Completed   | Async/Sync modes with auto-baud calculation.  |
-| **ADC**       | ✅ Completed   | Analog-to-Digital driver.                     |
-| **SPI & I2C** |  Undecided     | Future hardware support.                      |
+| Feature       | Status         | Description                                     |
+|:--------------|:---------------|:------------------------------------------------|
+| **GPIO**      | ✅ Completed   | DDRx for PORTB, PORTC, and PORTD                |
+| **Timer0**    | ✅ Completed   | Normal and CTC modes with `delay_ms()`.         |
+| **Timer1**    | ✅ Completed   | Normal, CTC, and Mode 14 PWM.                   |
+| **USART0**    | ✅ Completed   | Async/Sync modes with auto-baud calculation.    |
+| **ADC**       | ✅ Completed   | Analog-to-Digital driver.                       |
+| **SPI & I2C** |  Undecided     | Future hardware support.                        |
+| **LCD**       | ✅ Completed   | JHD659 and compatible Lcd support in 4-bit mode |
 
 ### Completed Drivers
 
@@ -21,7 +22,11 @@ I've written the GPIO(General-Purpose Input/Output) drivers that covers all the 
 
 - **USART0** - I've implemented the `USART0` driver and it can be used in Normal Asynchronous mode, Double speed Asynchronous mode, and Master Synchronous mode. Instead of the user calculating the values manually, the `set_baud_rate()` method in the `USART0` driver does the calculation based on the UBRRn u32 value used by the user and it finds the UBRRn value to be used to calculate the baud rate. The calculated u32 value is split and cast as a u8, and the high byte is pushed to the USART Baud rate register high (`UBRR0H`), and from the 'discarded' bits, from the least significant bit, 8 bits of the  UBRRn value are pushed to the USART Baud rate register low (`UBRR0L`). After a lot of testing and troubleshooting, I found an issue, not with the driver, but with how the linker file maps the memory. Due to how the Atmega328p maps memory, flash and RAM have the same address but are stored at different location. The lack of me using a `startup.rs` file to manage the ram locations and how data is moved from flash to ram, any character more than one being handled by the `send_string()` method causes a bug where it tries to read its value from RAM, but instead of finding the `&str`, which contains more than one character, it looks at an area of ram where the string slice hasn't been moved from flash to RAM. Because of this, t's uninitialised, and therefore any character more than one being sent at once using the `send_string()` method shows garbage on the serial line, although it works with single characters, or the same character repetead whatever the number of times. This is due to using a basic linker file as everything else like initialising the memory with a `startup.rs` file isn't happening due to its complexity in bare-metal Rust, which is still new and a Tier 3 target, so this is the basic workaround to make the HAL work.
 
-- **ADC** - The ADC driver is complete! Unfortunately I can't show code examples for how I use it since I can't send string values or integer values using my `USART0` driver since as I mentioned, I don't have a `startup.rs` file to move variables from flash to ram, thus I personally can't view the values on mine, unless I'm viewing `hexadecimal` values on a particular serial monitor. But fortunately, if you have a startup file that initialises the variables from flash to ram, then you can view the variables on your serial monitor. (**NOTE:** I've tested the driver and it works flawlessly and can be used for ADC.)
+- **ADC** - The ADC driver is complete! Unfortunately I can't show code examples for how I use it since I can't send string values or integer values using my `USART0` driver since as I mentioned, I don't have a `startup.rs` file to move variables from flash to ram, thus I personally can't view the values on mine, unless I'm viewing `hexadecimal` values on a particular serial monitor. But fortunately for you, if you have a startup file that initialises the variables from flash to ram, then you can view the variables on your serial monitor. (**NOTE:** I've tested the driver and it works flawlessly and can be used for ADC.)
+
+- **LCD** - Implemented a driver for the JHD659 and compatible clones and LCDs like the Hitachi HD44780 LCD. The intiialisation sequence is very accurate from the powering up and the 15ms delay, till the transsition from 8-bit to 4-bit mode with delays mapped accurately. Everything is wrapped, but under the hood 2 nibbles are sent as the driver operates in 4-bit mode, and is wrapped in a `write_char()` method for characters and a `print_number()` method for printing numbers. Because of the memory initialisation issues for data, the method uses a stack buffer that allocates a fixed number of maximum digits (5) before the program starts so that words are printed from flash, since they're stored on the stack and are not heap allocated. There's a `clear_display()` method for clearing the Lcd display, using the correct timing of 2ms with delays in the driver at various places to handle the speed and make sure data is captured accurately and nothing is skipped.
+
+**NOTE:** - The LCD driver operates in 4-bit mode and maps pins: `VSS` ,`VDD`, `V0`, `RS`, `R/W`, `E`, `DB4`, `DB5`, `DB6`, `DB7`, `LED+`, `LED-` to the following pins respectively: `Common GND`, `5v`, `Arduino Uno R3 PD4`, `Arduino Uno R3 PD5`, `Arduino Uno R3 PD6`, `Arduino Uno R3 PD7`, `Arduino Uno R3 PB0`, `Arduino Uno R3 PB1`, `Arduino Uno R3 PB2`, `Arduino Uno R3 PB3`, `5v in series with a 220 Ohm resistor`, `Common GND`. ***Any other digital pin configurations won't work as these are hardcoded.*** The LCD optionally uses a 100uf capacitor with it's positive side in parallel with a `10k potentiometer` 5v pin, and the negative side connected to the potentiometer's `GND` pin leading to the `Common GND`.
 
 ### Drivers in progress
 
@@ -91,3 +96,7 @@ I'm currently 17, and when I first stumbled upon rust around 3 years ago, I fell
 * [AVR-ATmega328P Official Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
 
 * [The Rust Book](https://doc.rust-lang.org/stable/book/)
+
+* The JHD659 datasheet
+
+* The TMP36 Datasheet
