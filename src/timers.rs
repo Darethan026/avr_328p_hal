@@ -266,7 +266,8 @@ pub mod timer1 {
         }
 
         /// Set value for OCR1A
-        /// Top value (top) = ((clock speed) / (Chosen prescaler * frequency target in Hz) - 1
+        /// Top value (top) = ((clock speed) / (Chosen prescaler * frequency target in Hz) - 1.
+        /// For time, the formula is OCR1 = ((Clock speed * target in seconds) / Prescaler) - 1.
         /// Must be less than or equal to ICR1
         pub fn set_top_value(&self, top: u16) {
             unsafe {
