@@ -3,6 +3,12 @@ name = "avr_328p_hal"
 version = "1.1.0"
 edition = "2024"
 license = "MIT"
+description = "A bare-metal AVR-ATmega328p HAL written in Rust with zero dependencies with fast compilation times, using direct register manipulation."
+repository = "https://github.com/Darethan026/avr_328p_hal/"
+readme = "CRATE_README.md"
+keywords = ["embedded", "no-std", "avr", "arduino", "pure"]
+categories = ["embedded", "hardware-support", "no-std"]
+authors = ["Ethan <kigangadarell@gmail.com>"]
 
 [dependencies]
 
