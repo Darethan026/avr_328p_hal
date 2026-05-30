@@ -359,6 +359,12 @@ impl LCD {
 			self.write_char(c);
 		}
 	}
+
+	pub fn print(&mut self, s: &str) {
+		for bytes in s.as_bytes() {
+			self.write_char(*bytes as char);
+		}
+	}
 }
 
 impl Drop for LCD {
