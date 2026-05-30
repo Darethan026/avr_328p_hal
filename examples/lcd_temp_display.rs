@@ -6,7 +6,7 @@
 
 use core::panic::PanicInfo;
 
-use avr_328p_hal::{timers, gpio, adc, lcd};
+use avr_328p_hal::{timers, gpio, adc, lcd, usart0};
 
 use lcd::*;
 use gpio::*;
@@ -46,12 +46,7 @@ pub extern "C" fn main() -> ! {
 
         let voltage = (temp_val_mv - offset_voltage_mv) / scaling_in_mv;
 
-        lcd.write_char('T');
-        lcd.write_char('e');
-        lcd.write_char('m');
-        lcd.write_char('p');
-        lcd.write_char(':');
-        lcd.write_char(' ');
+        lcd.print("Temp: ");
         lcd.print_number(voltage as u16);
         lcd.write_char(0xDF as char);
         lcd.write_char('C');
