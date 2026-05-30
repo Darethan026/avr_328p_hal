@@ -68,19 +68,22 @@ SECTIONS
 
 		__data_end = . ;
 	
-	} data AT > text
+	} > data AT > text
 
 	.bss :
 	{
 		__bss_start = . ;
 
 		*(.bss)
+		*(.bss*)
 		*(COMMON)
 
 		. = ALIGN(2);
 
 		__bss_end = . ;
 	} > data
+
+	__data_load_start = LOADADDR(.data);
 }
 
-_stack_top = ORIGIN(data) + LENGTH(data);
+__stack_top = ORIGIN(data) + LENGTH(data);
