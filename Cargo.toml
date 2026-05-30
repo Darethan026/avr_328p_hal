@@ -1,6 +1,6 @@
 [package]
 name = "avr_328p_hal"
-version = "1.1.0"
+version = "2.0.0"
 edition = "2024"
 license = "MIT"
 description = "A bare-metal AVR-ATmega328p HAL written in Rust with zero dependencies with fast compilation times, using direct register manipulation."
