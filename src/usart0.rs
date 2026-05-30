@@ -167,15 +167,14 @@ impl USART0 {
 	}
 
 	/// Send a string
-	// (Can only send similar characters or single characters at once)
-	pub fn send_string(&self, string: &str) {
+	pub fn print_string(&self, string: &str) {
 		for val in string.as_bytes() {
 			self.transmit_char(*val as char);
 		}
 	}
 
-	/// Send a u16 value
-	pub fn send_u16(&self, value: u16) {
+	/// Send a u16 bin value
+	pub fn send_u16_binary(&self, value: u16) {
 		unsafe {
 			let high = (value >> 8) as u8;
 			self.transmit_char(high as char);
@@ -183,6 +182,32 @@ impl USART0 {
 			let low = (value) as u8;
 			self.transmit_char(low as char);
 		}
+	}
+
+	/// Print a u16 num value
+	pub fn print_num(&self, mut num: u16) {
+		let mut buff = [0u8; 5];
+
+		if num == 0 {
+			self.transmit_char('0');
+
+			return;
+		}
+
+		let mut i = 5;
+
+		while num > 0 {
+			i -= 1;
+
+			buff[i] = b'0' + (num % 10) as u8;
+
+			num /= 10;
+		}
+
+		if let Ok(s) = core::str::from_utf8(&buff[i..]) {
+			self.print_string(s);
+		}
+
 	}
 
 	/// Set the usart to receive
