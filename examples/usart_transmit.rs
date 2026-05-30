@@ -31,7 +31,7 @@ pub extern "C" fn main() -> ! {
     portb.set_output(PinB::PB0);
 
     loop {
-        usart.transmit_char('A');
+        usart.print_string("TESTING");
         portb.set_high(PinB::PB0);
         timer1.wait_for_match();
 
@@ -42,19 +42,18 @@ pub extern "C" fn main() -> ! {
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    let portb = PortB::take().unwrap();
-    let timer = Timer0::take().unwrap();
+    unsafe {
+        // Force PB5 (Pin 13) to Output mode by writing directly to DDRB (0x24)
+        let ddrb = 0x24 as *mut u8;
+        core::ptr::write_volatile(ddrb, core::ptr::read_volatile(ddrb) | (1 << 5));
 
-    portb.set_output(PinB::PB5);
-    
-    portb.set_high(PinB::PB5);
-        
-    timer.start();
-    
-    // If the program panics, blink the PB5 LED
-    loop {
-        portb.set_high(PinB::PB5);
-        timer.delay_ms(100);
-        portb.set_low(PinB::PB5);
+        let portb = 0x25 as *mut u8;
+        loop {
+            // Blink the LED using raw memory blocks to avoid ownership locks
+            core::ptr::write_volatile(portb, core::ptr::read_volatile(portb) ^ (1 << 5));
+            
+            // Simple busy-loop delay because we cannot take the Timer singleton
+            for _ in 0..40000 { core::hint::black_box(()); }
+        }
     }
 }

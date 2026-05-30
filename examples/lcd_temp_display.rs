@@ -60,20 +60,18 @@ pub extern "C" fn main() -> ! {
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    let timer = Timer1::take().unwrap();
-    let portb = PortB::take().unwrap();
+    unsafe {
+        // Force PB5 (Pin 13) to Output mode by writing directly to DDRB (0x24)
+        let ddrb = 0x24 as *mut u8;
+        core::ptr::write_volatile(ddrb, core::ptr::read_volatile(ddrb) | (1 << 5));
 
-    portb.set_output(PinB::PB5);
-        
-    timer.start();
-    timer.set_ctc_mode();
-    timer.set_top_value(24999);
-    timer.set_prescaler(Prescaler::Prescaler64);
-    
-    // If the program panics, blink the PB5 LED
-    loop {
-        portb.set_high(PinB::PB5);
-        timer.wait_for_match();
-        portb.set_low(PinB::PB5);
+        let portb = 0x25 as *mut u8;
+        loop {
+            // Blink the LED using raw memory blocks to avoid ownership locks
+            core::ptr::write_volatile(portb, core::ptr::read_volatile(portb) ^ (1 << 5));
+            
+            // Simple busy-loop delay because we cannot take the Timer singleton
+            for _ in 0..40000 { core::hint::black_box(()); }
+        }
     }
 }
