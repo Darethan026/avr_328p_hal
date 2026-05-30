@@ -2,7 +2,7 @@
 target = "avr-none"
 
 [target.avr-none]
-rustflags = ["-C", "target-cpu=atmega328p", "-C", "link-arg=-Tavr328p-linker.x"]
+rustflags = ["-C", "target-cpu=atmega328p", "-C", "link-arg=-Tavr-atmega328p_linker.ld"]
 
 [target.'cfg(target_arch = "avr")']
 runner = "ravedude"
