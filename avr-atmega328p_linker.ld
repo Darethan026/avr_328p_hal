@@ -17,7 +17,7 @@ SECTIONS
 		*(.vectors)
 		KEEP(*(.vectors))
 
-		/* Initialise vectors from 0 to 9
+		/* Initialise vectors from 0 to 9 */
 		*(.init0) /* After reset, start here */
 		KEEP(*(.init0))
 
