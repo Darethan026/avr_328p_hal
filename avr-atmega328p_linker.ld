@@ -83,4 +83,4 @@ SECTIONS
 	} > data
 }
 
-_stack_top = ORIGIN(data) + LENGTH(data)
+_stack_top = ORIGIN(data) + LENGTH(data);
