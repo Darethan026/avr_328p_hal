@@ -3,13 +3,13 @@ description: Bug report for `avr_328p_hal` hal
 title: "[Bug]: "
 body:
 - type: markdown
-	attributes:
-	  value: |
-	    ### NOTE
-	    The code in this project is written in strict imperative rust, i.e., it doesn't use generics, traits, high-level iterators, closures or smart pointers. Please describe your issue below, and select and include all that's applicable.
+  attributes:
+    value: |
+	  ### NOTE
+	  The code in this project is written in strict imperative rust, i.e., it doesn't use generics, traits, high-level iterators, closures or smart pointers. Please describe your issue below, and select and include all that's applicable.
 - type: textarea
-	id: bug_description
-	attributes:
-	  label: Describe your bug
-	  description: Describe your issue in detail so as to get as much useful help as possible.
+  id: bug_description
+  attributes:
+    label: Describe your bug
+	description: Describe your issue in detail so as to get as much useful help as possible.
 	    
