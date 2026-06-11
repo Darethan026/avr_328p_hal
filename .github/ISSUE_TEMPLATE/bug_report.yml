@@ -5,7 +5,7 @@ body:
 - type: markdown
   attributes:
     value: |
-	  ### NOTE
+      ### NOTE
 	  The code in this project is written in strict imperative rust, i.e., it doesn't use generics, traits, high-level iterators, closures or smart pointers. Please describe your issue below, and select and include all that's applicable.
 - type: textarea
   id: bug_description
