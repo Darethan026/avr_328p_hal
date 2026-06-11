@@ -10,7 +10,7 @@ body:
 - type: textarea
   id: bug_description
   attributes:
-    label: Describe your bug
+  label: Describe your bug
 	  description: Describe your issue in detail so as to get as much useful help as possible.
   validations:
     required: true
