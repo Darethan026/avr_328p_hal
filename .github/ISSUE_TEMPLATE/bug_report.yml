@@ -1,6 +1,9 @@
 name: Bug Report
 description: Bug report for `avr_328p_hal` hal
 title: "[Bug]: "
+labels: ["bug", "documentation"]
+assignees:
+  - Darethan026
 body:
   - type: markdown
     attributes:
@@ -8,9 +11,35 @@ body:
         ### NOTE
         The code in this project is written in strict imperative rust, i.e., it doesn't use generics, traits, high-level iterators, closures or smart pointers. Please describe your issue below, and select and include all that's applicable.
   - type: textarea
-    id: bug_description
+    id: issue_description
     attributes:
-      label: Describe your bug
+      label: Describe your issue
       description: Describe your issue in detail so as to get as much useful help as possible.
     validations:
       required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Version of the crate you're currently using
+      options:
+        - 1.1.0
+        - 2.0.0 (Latest)
+    validations:
+      required: true
+  - type: checkboxes
+    id: boxes
+    attributes:
+      label: Do you have the following software installed?
+      description: Check the boxes to show what software you have installed.
+      options:
+        - label: rustup nightly compiler (To compile core from scratch due to this being a low-level crate)
+          required: true
+        - label: avr-gcc (To build code for avr)
+          required: true
+        - label: ravedude (To flash the .elf file to the microcontroller)
+          required: true
+        - label: A linker script (To enable the compiler know the memory and data regions on the microcontroller)
+          required: true
+        - label: rust-src (Required by rustup nightly)
+          required: true
