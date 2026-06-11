@@ -34,12 +34,12 @@ body:
       description: Check the boxes to show what software you have installed.
       options:
         - label: rustup nightly compiler (To compile core from scratch due to this being a low-level crate)
-          required: true
+          required: false
         - label: avr-gcc (To build code for avr)
-          required: true
+          required: false
         - label: ravedude (To flash the .elf file to the microcontroller)
-          required: true
+          required: false
         - label: A linker script (To enable the compiler know the memory and data regions on the microcontroller)
-          required: true
+          required: false
         - label: rust-src (Required by rustup nightly)
-          required: true
+          required: false
