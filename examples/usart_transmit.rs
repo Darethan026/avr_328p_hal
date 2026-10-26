@@ -8,7 +8,7 @@ use avr_328p_hal::timers;
 use avr_328p_hal::usart0;
 
 use gpio::*;
-use timers::{Timer0, Timer1, Prescaler};
+use timers::{Timer1, Prescaler};
 use usart0::{USART0, Mode};
 
 #[unsafe(no_mangle)]
@@ -23,10 +23,8 @@ pub extern "C" fn main() -> ! {
     timer1.set_top_value(62499);
     timer1.set_prescaler(Prescaler::Prescaler256);
 
-    usart.start();
+    usart.init();
     usart.set_baud_rate(9600, Mode::DoubleSpeedAsynchronous);
-    usart.set_frame_format();
-    usart.enable_tx_rx();
 
     portb.set_output(PinB::PB0);
 

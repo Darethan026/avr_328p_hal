@@ -2,7 +2,6 @@
 
 #![no_std]
 #![no_main]
-#![allow(unused_imports)]
 
 use core::panic::PanicInfo;
 
@@ -21,7 +20,7 @@ pub extern "C" fn main() -> ! {
     let timer = Timer1::take().unwrap(); // Timer1
     let tmp_sensor = ADC::take().unwrap();
 
-    tmp_sensor.start();
+    tmp_sensor.init();
     tmp_sensor.select_input_channel(InputChannel::AnalogPin0);
     tmp_sensor.set_reference(VoltageReference::Internal);
     

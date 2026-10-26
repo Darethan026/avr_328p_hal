@@ -38,19 +38,7 @@ pub extern "C" fn main() -> ! {
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    let portb = PortB::take().unwrap();
-    let timer = Timer0::take().unwrap();
-
-    portb.set_output(PinB::PB3);
-    portb.set_output(PinB::PB5);
-    
-    portb.set_high(PinB::PB5);
-        
-    timer.start();
-    
-    // If the program panics, blink the PB5 LED
     loop {
-        portb.toggle(PinB::PB3);
-        timer.delay_ms(100);
+        
     }
 }
