@@ -5,12 +5,10 @@
 
 use core::panic::PanicInfo;
 
-use avr_328p_hal::{timers, gpio, adc, lcd, usart0};
+use avr_328p_hal::{timers, adc, lcd};
 
 use lcd::*;
-use gpio::*;
 use timers::*;
-use usart0::*;
 use adc::*;
 
 #[unsafe(no_mangle)]

@@ -7,7 +7,7 @@ use avr_328p_hal::gpio;
 use avr_328p_hal::timers;
 
 use gpio::*;
-use timers::{Timer0, Timer1, Prescaler};
+use timers::{Timer1, Prescaler};
 
 #[unsafe(no_mangle)]
 pub extern "C" fn main() -> ! {
