@@ -64,7 +64,7 @@ impl ADC {
     }
 
     /// Start the ADC by waking it from the PRR
-    pub fn start(&self) {
+    pub fn init(&self) {
     	unsafe {
     		// Read the PRR and write a 1 to bit 0 (PRADC)
     		let val = core::ptr::read_volatile(Self::PRR);
@@ -224,14 +224,8 @@ impl ADC {
     		let low = core::ptr::read_volatile(Self::ADCL);
     		let high = core::ptr::read_volatile(Self::ADCH);
 
-    		// Store the result in a variable
-    		let result = (high as u16) << 8 | (low as u16);
-
-    		result
+    		// Return the result
+    		(high as u16) << 8 | (low as u16)
     	}
     }
 }
-
-// pg 205
-
-// pg 217 registers
