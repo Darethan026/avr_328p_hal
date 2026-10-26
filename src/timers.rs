@@ -3,8 +3,6 @@
 // Copyright (c) 2026 [Darell Ethan Kiganga]
 // SPDX-License-Identifier: MIT
 
-#![allow(dead_code)]
-
 /// Prescaler and their values set
 #[repr(u8)]
 pub enum Prescaler {
@@ -36,10 +34,10 @@ pub mod timer0 {
         const TCCR0A: *mut u8 = 0x44 as *mut u8;
         const TCCR0B: *mut u8 = 0x45 as *mut u8;
         const OCR0A: *mut u8 = 0x47 as *mut u8;
-        const OCR0B: *mut u8 = 0x48 as *mut u8;
+        // const OCR0B: *mut u8 = 0x48 as *mut u8;
         const TIFR0: *mut u8 = 0x35 as *mut u8; // Timer0 interrupt register
-        const TCNT0: *mut u8 = 0x46 as *mut u8; // Timer register
-        const TIMSK0: *mut u8 = 0x6E as *mut u8;
+        // const TCNT0: *mut u8 = 0x46 as *mut u8; // Timer register
+        // const TIMSK0: *mut u8 = 0x6E as *mut u8;
 
         /// Take timer0
         pub fn take() -> Option<Self> {
@@ -173,10 +171,10 @@ pub mod timer1 {
         const TCCR1A: *mut u8 = 0x80 as *mut u8;
         const TCCR1B: *mut u8 = 0x81 as *mut u8;
         const OCR1A: *mut u16 = 0x88 as *mut u16; // Low register
-        const OCR1B: *mut u16 = 0x8A as *mut u16; // Low register
+        // const OCR1B: *mut u16 = 0x8A as *mut u16; // Low register
         const TIFR1: *mut u8 = 0x36 as *mut u8; // Timer1 interrupt register
-        const TCNT1: *mut u16 = 0x84 as *mut u16; // Timer register (Low)
-        const TIMSK1: *mut u8 = 0x6F as *mut u8;
+        // const TCNT1: *mut u16 = 0x84 as *mut u16; // Timer register (Low)
+        // const TIMSK1: *mut u8 = 0x6F as *mut u8;
         const ICR1: *mut u16 = 0x86 as *mut u16; // ICR1
 
         pub fn take() -> Option<Self> {
