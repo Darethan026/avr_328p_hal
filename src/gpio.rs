@@ -3,7 +3,6 @@
 // Copyright (c) 2026 [Darell Ethan Kiganga]
 // SPDX-License-Identifier: MIT
 
-#![allow(dead_code)]
 /// Define the Pins on PortB starting from digital pin 8 (PB0) and ending with digital pin 13 (PB5)
 #[repr(u8)]
 #[derive(Copy, Clone)]
