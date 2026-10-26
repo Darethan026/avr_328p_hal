@@ -50,7 +50,7 @@ impl USART0 {
 			let val = core::ptr::read_volatile(Self::PRR);
 
 			// Clear bit 1 (PRUSART0) to wake the USART
-			core::ptr::write_volatile(Self::PRR, val & !(1 << 1 as u8));
+			core::ptr::write_volatile(Self::PRR, val & !(1 << 1_u8));
 		}
 	}
 
@@ -64,10 +64,10 @@ impl USART0 {
 					let other_val = core::ptr::read_volatile(Self::UCSR0C);
 
 					// Clear bit 2 (U2X0)
-					core::ptr::write_volatile(Self::UCSR0A, val & !(1 << 1 as u8));
+					core::ptr::write_volatile(Self::UCSR0A, val & !(1 << 1_u8));
 
 					// Set asynchronous USART by clearing bit 6 and 7
-					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6 as u8) & !(1 << 7 as u8));
+					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6_u8) & !(1 << 7_u8));
 
 					let ubrrn = ((Self::CPU_SPEED) / (16 * baud_rate)) - 1;
 
@@ -88,10 +88,10 @@ impl USART0 {
 					let other_val = core::ptr::read_volatile(Self::UCSR0C);
 
 					// Set the U2X0 bit to 1
-					core::ptr::write_volatile(Self::UCSR0A, val | (1 << 1 as u8));
+					core::ptr::write_volatile(Self::UCSR0A, val | (1 << 1_u8));
 
 					// Set asynchronous USART by clearing bit 6 and 7
-					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6 as u8) & !(1 << 7 as u8));
+					core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 6_u8) & !(1 << 7_u8));
 
 					let ubrrn = ((Self::CPU_SPEED) / (8 * baud_rate)) - 1;
 
@@ -113,7 +113,7 @@ impl USART0 {
 					let val = core::ptr::read_volatile(Self::UCSR0C);
 
 					// Clear and set bits for Synchronous USART
-					core::ptr::write_volatile(Self::UCSR0C, val & !(1 << 7 as u8) | (1 << 6 as u8) | (1 << 0 as u8));
+					core::ptr::write_volatile(Self::UCSR0C, val & !(1 << 7_u8) | (1 << 6_u8) | (1 << 0_u8));
 
 					// Set the pin as output to ensure it's master
 					xck.set_output(PinD::PD4);
@@ -143,8 +143,8 @@ impl USART0 {
 			let other_val = core::ptr::read_volatile(Self::UCSR0C);
 
 			// Set the frame format by setting 1 start bit, 8 data bits, and 1 stop bit with no parity
-			core::ptr::write_volatile(Self::UCSR0B, val & !(1 << 2 as u8));
-			core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 3 as u8) & !(1 << 4 as u8) & !(1 << 5 as u8) | (1 << 1 as u8) | (1 << 2 as u8));
+			core::ptr::write_volatile(Self::UCSR0B, val & !(1 << 2_u8));
+			core::ptr::write_volatile(Self::UCSR0C, other_val & !(1 << 3_u8) & !(1 << 4_u8) & !(1 << 5_u8) | (1 << 1_u8) | (1 << 2_u8));
 		}
 	}
 
@@ -155,7 +155,7 @@ impl USART0 {
 			let val = core::ptr::read_volatile(Self::UCSR0B);
 
 			// Enable TX and RX
-			core::ptr::write_volatile(Self::UCSR0B, val | (1 << 3 as u8) | (1 << 4 as u8));
+			core::ptr::write_volatile(Self::UCSR0B, val | (1 << 3_u8) | (1 << 4_u8));
 		}
 	}
 
@@ -163,7 +163,7 @@ impl USART0 {
 	pub fn transmit_char(&self, character: char) {
 		unsafe {
 			// Check the UCSR0A register to see whether the UDREn (USART Data Register Empty) is empty
-			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 5 as u8) == 0 {
+			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 5_u8) == 0 {
 				// Wait...
 			}
 
@@ -221,16 +221,16 @@ impl USART0 {
 			let val = core::ptr::read_volatile(Self::UCSR0B);
 
 			// Write a 1 to the receive enable bit (RXEn) in UCSR0B
-			core::ptr::write_volatile(Self::UCSR0B, val | (1 << 4 as u8));
+			core::ptr::write_volatile(Self::UCSR0B, val | (1 << 4_u8));
 
-			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 7 as u8) == 0 {
+			while core::ptr::read_volatile(Self::UCSR0A) & (1 << 7_u8) == 0 {
 				// Wait...
 			}			
 
 			// Read UDR0 to release the contents of RXB
-			let contents = core::ptr::read_volatile(Self::UDR0);
+			
 
-			contents
+			core::ptr::read_volatile(Self::UDR0)
 		}
 	}
 }

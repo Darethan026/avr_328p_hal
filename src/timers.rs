@@ -58,7 +58,7 @@ pub mod timer0 {
                 let val = core::ptr::read_volatile(Self::PRR);
 
                 // Writing 0 to bit 5 (PRTIM0) to start the timer0 module
-                core::ptr::write_volatile(Self::PRR, val & !(1 << 5 as u8));
+                core::ptr::write_volatile(Self::PRR, val & !(1 << 5_u8));
             }
         }
 
@@ -73,7 +73,7 @@ pub mod timer0 {
 
                 // Clear WGM0 bits for TCCR0A
                 core::ptr::write_volatile(Self::TCCR0A, val & !(1 | 2));
-                core::ptr::write_volatile(Self::TCCR0B, other_val & !(1 << 3 as u8));
+                core::ptr::write_volatile(Self::TCCR0B, other_val & !(1 << 3_u8));
             }
         }
 
@@ -84,10 +84,10 @@ pub mod timer0 {
                 let val = core::ptr::read_volatile(Self::TCCR0B);
 
                 // Clear all CS0 bits
-                let clear = val & !(1 << 0 as u8 | 1 << 1 as u8 | 1 << 2 as u8);
+                let clear = val & !(1 << 0_u8 | 1 << 1_u8 | 1 << 2_u8);
 
                 // Clear flags
-                core::ptr::write_volatile(Self::TIFR0, 1 << 1 as u8);
+                core::ptr::write_volatile(Self::TIFR0, 1 << 1_u8);
 
                 // Set clock source
                 core::ptr::write_volatile(Self::TCCR0B, clear | prescaler as u8);
@@ -117,8 +117,8 @@ pub mod timer0 {
 
 
                 // Set the mode
-                core::ptr::write_volatile(Self::TCCR0A, val & !(1 << 0 as u8) | (1 << 1 as u8));
-                core::ptr::write_volatile(Self::TCCR0B, other_val & !(1 << 3 as u8));
+                core::ptr::write_volatile(Self::TCCR0A, val & !(1 << 0_u8) | (1 << 1_u8));
+                core::ptr::write_volatile(Self::TCCR0B, other_val & !(1 << 3_u8));
             }
         }
 
@@ -134,11 +134,11 @@ pub mod timer0 {
         /// Wait for OCR0A to match
         pub fn wait_for_match(&self) {
             unsafe {
-                while (core::ptr::read_volatile(Self::TIFR0) & (1 << 1 as u8)) == 0 {
+                while (core::ptr::read_volatile(Self::TIFR0) & (1 << 1_u8)) == 0 {
                     // Wait... 
                 }
 
-                core::ptr::write_volatile(Self::TIFR0, 1 << 1 as u8);
+                core::ptr::write_volatile(Self::TIFR0, 1 << 1_u8);
             }
         }
 
@@ -195,7 +195,7 @@ pub mod timer1 {
                 let val = core::ptr::read_volatile(Self::PRR);
 
                 // Writing 0 to bit 3 (PRTIM1) to start the timer1 module
-                core::ptr::write_volatile(Self::PRR, val & !(1 << 3 as u8));
+                core::ptr::write_volatile(Self::PRR, val & !(1 << 3_u8));
             }
         }
 
@@ -206,8 +206,8 @@ pub mod timer1 {
                 let other_val = core::ptr::read_volatile(Self::TCCR1B);
 
                 // Clear WGMx bits for TCCR1A and TCCR1B
-                core::ptr::write_volatile(Self::TCCR1A, val & !(1 << 0 as u8 | 1 << 1 as u8));
-                core::ptr::write_volatile(Self::TCCR1B, other_val & !(1 << 3 as u8 | 1 << 4 as u8));
+                core::ptr::write_volatile(Self::TCCR1A, val & !(1 << 0_u8 | 1 << 1_u8));
+                core::ptr::write_volatile(Self::TCCR1B, other_val & !(1 << 3_u8 | 1 << 4_u8));
             }
         }
 
@@ -218,10 +218,10 @@ pub mod timer1 {
                 let val = core::ptr::read_volatile(Self::TCCR1B);
 
                 // Clear all CS1 bits
-                let clear = val & !(1 << 0 as u8 | 1 << 1 as u8 | 1 << 2 as u8);
+                let clear = val & !(1 << 0_u8 | 1 << 1_u8 | 1 << 2_u8);
 
                 // Clear flags
-                core::ptr::write_volatile(Self::TIFR1, 1 << 1 as u8);
+                core::ptr::write_volatile(Self::TIFR1, 1 << 1_u8);
 
                 // Set clock source
                 core::ptr::write_volatile(Self::TCCR1B, clear | prescaler as u8);
@@ -247,19 +247,19 @@ pub mod timer1 {
                 let other_val = core::ptr::read_volatile(Self::TCCR1B);
 
                 // Set the mode
-                core::ptr::write_volatile(Self::TCCR1A, val & !(1 << 0 as u8) & !(1 << 1 as u8));
-                core::ptr::write_volatile(Self::TCCR1B, other_val & !(1 << 4 as u8) | (1 << 3 as u8));
+                core::ptr::write_volatile(Self::TCCR1A, val & !(1 << 0_u8) & !(1 << 1_u8));
+                core::ptr::write_volatile(Self::TCCR1B, other_val & !(1 << 4_u8) | (1 << 3_u8));
             }
         }
 
         // Wait for OCR1A to match
         pub fn wait_for_match(&self) {
             unsafe {
-                while (core::ptr::read_volatile(Self::TIFR1) & (1 << 1 as u8)) == 0 {
+                while (core::ptr::read_volatile(Self::TIFR1) & (1 << 1_u8)) == 0 {
                     // Wait... 
                 }
 
-                core::ptr::write_volatile(Self::TIFR1, 1 << 1 as u8);
+                core::ptr::write_volatile(Self::TIFR1, 1 << 1_u8);
             }
         }
 
@@ -279,18 +279,18 @@ pub mod timer1 {
         pub fn set_fast_pwm(&self, top: u16) {
             unsafe {
                 // Clear flags before starting
-                core::ptr::write_volatile(Self::TIFR1, 1 << 1 as u8);
+                core::ptr::write_volatile(Self::TIFR1, 1 << 1_u8);
 
                 // Read TCCR1A and TCCR1B
                 let val = core::ptr::read_volatile(Self::TCCR1A);
                 let other_val = core::ptr::read_volatile(Self::TCCR1B);
-                let clear = val & !(1 << 0 as u8) & !(1 << 1 as u8) & !(1 << 6 as u8) & !(1 << 7 as u8);
-                let other_clear = other_val & !(1 << 3 as u8) & !(1 << 4 as u8);
+                let clear = val & !(1 << 0_u8) & !(1 << 1_u8) & !(1 << 6_u8) & !(1 << 7_u8);
+                let other_clear = other_val & !(1 << 3_u8) & !(1 << 4_u8);
 
                 // Configure WGM for Mode 14 Fast PWM while clearing some bits
-                core::ptr::write_volatile(Self::TCCR1A, clear | (1 << 1 as u8) | 1 << 7 as u8);
+                core::ptr::write_volatile(Self::TCCR1A, clear | (1 << 1_u8) | 1 << 7_u8);
 
-                core::ptr::write_volatile(Self::TCCR1B, other_clear | (1 << 3 as u8) | (1 << 4 as u8));
+                core::ptr::write_volatile(Self::TCCR1B, other_clear | (1 << 3_u8) | (1 << 4_u8));
 
                 core::ptr::write_volatile(Self::ICR1, top);
             }

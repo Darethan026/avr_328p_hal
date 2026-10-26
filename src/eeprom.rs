@@ -34,11 +34,11 @@ impl EEPROM {
     pub fn eeprom_write(&self, address: u16, data: u8) {
         unsafe {
             // Check to see if previous write completed
-            while core::ptr::read_volatile(Self::EECR) & (1 << 1 as u8) != 0 {
+            while core::ptr::read_volatile(Self::EECR) & (1 << 1_u8) != 0 {
                 // Wait till it becomes 0 to signal a write is finished
             }
 
-            while core::ptr::read_volatile(Self::SPMCSR) & (1 << 0 as u8) != 0 {
+            while core::ptr::read_volatile(Self::SPMCSR) & (1 << 0_u8) != 0 {
                 // Wait till it becomes 0
             }
 
@@ -66,10 +66,10 @@ impl EEPROM {
             core::ptr::write_volatile(Self::EEDR, data);
 
             // Write a 1 to EEMPE and a 0 to EEPE in EECR
-            core::ptr::write_volatile(Self::EECR, read_eecr & !(1 << 1 as u8) | (1 << 2));
+            core::ptr::write_volatile(Self::EECR, read_eecr & !(1 << 1_u8) | (1 << 2));
 
             // Write a 1 to EEPE to write to EEPROM
-            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 1 as u8));
+            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 1_u8));
         }
     }
 
@@ -77,7 +77,7 @@ impl EEPROM {
     pub fn eeprom_read(&self, address: u16) -> u8 {
         unsafe {
             // Check to see if previous write completed
-            while core::ptr::read_volatile(Self::EECR) & (1 << 1 as u8) != 0 {
+            while core::ptr::read_volatile(Self::EECR) & (1 << 1_u8) != 0 {
                 // Wait till it becomes 0 to signal a write is finished
             }
 
@@ -101,7 +101,7 @@ impl EEPROM {
             // Read EEPROM
 
             // Write a 1 to EERE to start EEPROM read
-            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 0 as u8));
+            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 0_u8));
 
             // Return data from EEDR
             core::ptr::read_volatile(Self::EEDR)

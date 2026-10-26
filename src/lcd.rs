@@ -48,7 +48,7 @@ impl LCD {
 				let db7 = lcd_portb.set_output(PinB::PB3);
 				let enable = lcd_portd.set_output(PinD::PD7);
 
-				let mut cursor_index = 0 as u32;
+				let mut cursor_index = 0_u32;
 
 				Some(LCD {
 					lcd_portb,
@@ -207,7 +207,7 @@ impl LCD {
 	}
 
 	fn write_nibble(&self, nibble: u8) {
-		let high = (nibble >> 4) as u8;
+		let high = (nibble >> 4);
 		let low = nibble;
 
 		self.lcd_portd.set_high(self.rs);

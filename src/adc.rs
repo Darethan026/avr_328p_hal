@@ -69,7 +69,7 @@ impl ADC {
     		// Read the PRR and write a 1 to bit 0 (PRADC)
     		let val = core::ptr::read_volatile(Self::PRR);
 
-    		core::ptr::write_volatile(Self::PRR, val & !(1 << 0 as u8));
+    		core::ptr::write_volatile(Self::PRR, val & !(1 << 0_u8));
     	}
     }
 
@@ -86,37 +86,37 @@ impl ADC {
     			InputChannel::AnalogPin0 => {
     				analog_pins.set_input(PinC::PC0, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0 as u8) & !(1 << 1 as u8) & !(1 << 2 as u8) & !(1 << 3 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0_u8) & !(1 << 1_u8) & !(1 << 2_u8) & !(1 << 3_u8));
     			}
 
     			InputChannel::AnalogPin1 => {
     				analog_pins.set_input(PinC::PC1, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1 as u8) & !(1 << 2 as u8) & !(1 << 3 as u8) | (1 << 0 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1_u8) & !(1 << 2_u8) & !(1 << 3_u8) | (1 << 0_u8));
     			}
 
     			InputChannel::AnalogPin2 => {
     				analog_pins.set_input(PinC::PC2, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0 as u8) & !(1 << 1 as u8) & !(1 << 3 as u8) | (1 << 1 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0_u8) & !(1 << 1_u8) & !(1 << 3_u8) | (1 << 1_u8));
     			}
 
     			InputChannel::AnalogPin3 => {
     				analog_pins.set_input(PinC::PC3, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1 as u8) & !(1 << 3 as u8) | (1 << 0 as u8) | (1 << 1 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1_u8) & !(1 << 3_u8) | (1 << 0_u8) | (1 << 1_u8));
     			}
 
     			InputChannel::AnalogPin4 => {
     				analog_pins.set_input(PinC::PC4, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0 as u8) & !(1 << 1 as u8) & !(1 << 3 as u8) | (1 << 2 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 0_u8) & !(1 << 1_u8) & !(1 << 3_u8) | (1 << 2_u8));
     			}
 
     			InputChannel::AnalogPin5 => {
     				analog_pins.set_input(PinC::PC5, false);
 
-    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1 as u8) & !(1 << 3 as u8) | (1 << 0 as u8) | (1 << 2 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, val & !(1 << 1_u8) & !(1 << 3_u8) | (1 << 0_u8) | (1 << 2_u8));
     			}
     		}
     	}
@@ -131,7 +131,7 @@ impl ADC {
     				let refr = core::ptr::read_volatile(Self::ADMUX);
 
     				// Set the voltage reference
-    				core::ptr::write_volatile(Self::ADMUX, refr & !(1 << 6 as u8) & !(1 << 7 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, refr & !(1 << 6_u8) & !(1 << 7_u8));
     			}
 
     			VoltageReference::AVcc => {
@@ -139,7 +139,7 @@ impl ADC {
     				let refr = core::ptr::read_volatile(Self::ADMUX);
 
     				// Set the voltage reference
-    				core::ptr::write_volatile(Self::ADMUX, refr & !(1 << 7 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, refr & !(1 << 7_u8) | (1 << 6_u8));
     			}
 
     			VoltageReference::Internal => {
@@ -147,7 +147,7 @@ impl ADC {
     				let refr = core::ptr::read_volatile(Self::ADMUX);
 
     				// Set the voltage reference
-    				core::ptr::write_volatile(Self::ADMUX, refr | (1 << 6 as u8) | (1 << 7 as u8));
+    				core::ptr::write_volatile(Self::ADMUX, refr | (1 << 6_u8) | (1 << 7_u8));
     			}
     		}
     	}
@@ -159,53 +159,53 @@ impl ADC {
     		// Read the register and enable ADEN
     		let val = core::ptr::read_volatile(Self::ADCSRA);
 
-    		core::ptr::write_volatile(Self::ADCSRA, val | (1 << 7 as u8));
+    		core::ptr::write_volatile(Self::ADCSRA, val | (1 << 7_u8));
 
     		match prescaler {
     			ADCprescaler::Prescaler2 => {
     				let prcl2 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl2 & !(1 << 1 as u8) & !(1 << 2 as u8) | (1 << 0 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl2 & !(1 << 1_u8) & !(1 << 2_u8) | (1 << 0_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler4 => {
     				let prcl4 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl4 & !(1 << 0 as u8) & !(1 << 2 as u8) | (1 << 1 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl4 & !(1 << 0_u8) & !(1 << 2_u8) | (1 << 1_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler8 => {
     				let prcl8 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl8 & !(1 << 2 as u8) | (1 << 0 as u8) | (1 << 1 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl8 & !(1 << 2_u8) | (1 << 0_u8) | (1 << 1_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler16 => {
     				let prcl16 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl16 & !(1 << 0 as u8) & !(1 << 1 as u8) | (1 << 2 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl16 & !(1 << 0_u8) & !(1 << 1_u8) | (1 << 2_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler32 => {
     				let prcl32 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl32 & !(1 << 1 as u8) | (1 << 0 as u8) | (1 << 2 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl32 & !(1 << 1_u8) | (1 << 0_u8) | (1 << 2_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler64 => {
     				let prcl64 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl64 & !(1 << 0 as u8) | (1 << 1 as u8) | (1 << 2 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl64 & !(1 << 0_u8) | (1 << 1_u8) | (1 << 2_u8) | (1 << 6_u8));
     			}
 
     			ADCprescaler::Prescaler128 => {
     				let prcl128 = core::ptr::read_volatile(Self::ADCSRA);
 
-    				core::ptr::write_volatile(Self::ADCSRA, prcl128 | (1 << 0 as u8) | (1 << 1 as u8) | (1 << 2 as u8) | (1 << 6 as u8));
+    				core::ptr::write_volatile(Self::ADCSRA, prcl128 | (1 << 0_u8) | (1 << 1_u8) | (1 << 2_u8) | (1 << 6_u8));
     			}
     		}
 
-    		while core::ptr::read_volatile(Self::ADCSRA) & (1 << 6 as u8) !=0 {
+    		while core::ptr::read_volatile(Self::ADCSRA) & (1 << 6_u8) !=0 {
     			// Wait...
     		}
 
@@ -214,10 +214,10 @@ impl ADC {
     		core::ptr::read_volatile(Self::ADCH);
 
     		// Trigger another conversion then save the result
-    		core::ptr::write_volatile(Self::ADCSRA, (1 << 6 as u8) | (1 << 7 as u8) | prescaler as u8);
+    		core::ptr::write_volatile(Self::ADCSRA, (1 << 6_u8) | (1 << 7_u8) | prescaler as u8);
 
     		// Check for the accurate value then put it in a variable
-    		while core::ptr::read_volatile(Self::ADCSRA) & (1 << 6 as u8) !=0 {
+    		while core::ptr::read_volatile(Self::ADCSRA) & (1 << 6_u8) !=0 {
     			// Wait...
     		}
 
