@@ -3,9 +3,6 @@
 // Copyright (c) 2026 [Darell Ethan Kiganga]
 // SPDX-License-Identifier: MIT
 
-#![allow(dead_code)]
-#![allow(unused_unsafe)]
-
 #[repr(u8)]
 #[derive(Copy, Clone)]
 pub enum Mode {
@@ -47,7 +44,7 @@ impl USART0 {
     }
 
 	/// Start the USART on 1 start bit, with 8 data bits and 1 stop bit, with no parity
-	pub fn start(&self) {
+	pub fn init(&self) {
 		unsafe {
 			// Read the power reduction register
 			let val = core::ptr::read_volatile(Self::PRR);
@@ -80,6 +77,9 @@ impl USART0 {
 					} else {
 						panic!();
 					}
+
+					self.set_frame_format();
+					self.enable_tx_rx();
 				}
 
 				Mode::DoubleSpeedAsynchronous => {
@@ -101,6 +101,9 @@ impl USART0 {
 					} else {
 						panic!();
 					}
+
+					self.set_frame_format();
+					self.enable_tx_rx();
 				}
 
 				Mode::MasterSynchronous => {
@@ -123,6 +126,9 @@ impl USART0 {
 					} else {
 						panic!();
 					}
+
+					self.set_frame_format();
+					self.enable_tx_rx();
 				}
 			}
 		}
@@ -130,7 +136,7 @@ impl USART0 {
 
 
 	/// Set the frame format after setting the baud rate
-	pub fn set_frame_format(&self) {
+	fn set_frame_format(&self) {
 		unsafe {
 			// Read the value on the UCSR0B and UCSR0C registers
 			let val = core::ptr::read_volatile(Self::UCSR0B);
@@ -143,7 +149,7 @@ impl USART0 {
 	}
 
 	/// Enable TX and RX to wake up the transmitter and receiver
-	pub fn enable_tx_rx(&self) {
+	fn enable_tx_rx(&self) {
 		unsafe {
 			// Read the value on the UCSR0B register
 			let val = core::ptr::read_volatile(Self::UCSR0B);
@@ -166,22 +172,20 @@ impl USART0 {
 		}
 	}
 
-	/// Send a string
+	/// Transmit a string
 	pub fn print_string(&self, string: &str) {
 		for val in string.as_bytes() {
 			self.transmit_char(*val as char);
 		}
 	}
 
-	/// Send a u16 bin value
-	pub fn send_u16_binary(&self, value: u16) {
-		unsafe {
-			let high = (value >> 8) as u8;
-			self.transmit_char(high as char);
+	/// Send a u16 value
+	pub fn send_u16_bytes(&self, value: u16) {
+		let high = (value >> 8) as u8;
+		self.transmit_char(high as char);
 
-			let low = (value) as u8;
-			self.transmit_char(low as char);
-		}
+		let low = (value) as u8;
+		self.transmit_char(low as char);
 	}
 
 	/// Print a u16 num value
@@ -230,7 +234,3 @@ impl USART0 {
 		}
 	}
 }
-
-// pg 276 - register descr and pg 159
-
-//pg 148 usart0
