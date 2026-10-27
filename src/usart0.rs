@@ -11,6 +11,7 @@ pub enum Mode {
 	MasterSynchronous,
 }
 
+/// AVR-Atmega328p USART0
 pub struct USART0 {
 	_priv: (),
 }
