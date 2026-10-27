@@ -52,7 +52,7 @@ pub mod timer0 {
         }
 
         /// Starting the counter module
-        pub fn start(&self) {
+        pub fn init(&self) {
             unsafe {
                 // Reading the PRR (Power reduction register state)
                 let val = core::ptr::read_volatile(Self::PRR);
@@ -189,7 +189,7 @@ pub mod timer1 {
         }
 
         /// Starting the counter module
-        pub fn start(&self) {
+        pub fn init(&self) {
             unsafe {
                 // Reading the PRR (Power reduction register state)
                 let val = core::ptr::read_volatile(Self::PRR);
