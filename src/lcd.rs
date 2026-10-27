@@ -70,7 +70,7 @@ impl LCD {
 
 	/// Initialise the Lcd
 	pub fn init(&self) {
-		self.timer0.start();
+		self.timer0.init();
 		self.timer0.delay_ms(15);
 
 		self.lcd_portd.set_low(self.rs);
