@@ -44,32 +44,35 @@ impl EEPROM {
 
             // SET UP ADDRESSES
 
-            // EEAR8 is an unused bit in ATmega328P and must always be written to zero.
-            // Read and store the value of EEARH
+            if address <= 1023 {
+                // EEAR8 is an unused bit in ATmega328P and must always be written to zero.
+                // Read and store the value of EEARH
 
-            // Get the high byte for EEARH
-            let high_byte = (address >> 8) as u8;
+                // Get the high byte for EEARH
+                let high_byte = (address >> 8) as u8;
 
-            // Get the low byte for EEARL
-            let low_byte = address as u8;
+                // Get the low byte for EEARL
+                let low_byte = address as u8;
 
-            let read_eearh = core::ptr::read_volatile(Self::EEARH); // Read EEARH value
-            let read_eecr = core::ptr::read_volatile(Self::EECR); // Read EECR value
+                let read_eecr = core::ptr::read_volatile(Self::EECR); // Read EECR value
 
-            // Write to EEAR High byte
-            core::ptr::write_volatile(Self::EEARH, read_eearh & !(0x42) | high_byte);
+                // Write to EEAR High byte
+                core::ptr::write_volatile(Self::EEARH, high_byte);
 
-            // Write to EEAR Low byte
-            core::ptr::write_volatile(Self::EEARL, low_byte);
+                // Write to EEAR Low byte
+                core::ptr::write_volatile(Self::EEARL, low_byte);
 
-            // Write EEPROM data to EEDR
-            core::ptr::write_volatile(Self::EEDR, data);
+                // Write EEPROM data to EEDR
+                core::ptr::write_volatile(Self::EEDR, data);
 
-            // Write a 1 to EEMPE and a 0 to EEPE in EECR
-            core::ptr::write_volatile(Self::EECR, read_eecr & !(1 << 1_u8) | (1 << 2));
+                // Write a 1 to EEMPE and a 0 to EEPE in EECR
+                core::ptr::write_volatile(Self::EECR, read_eecr & !(1 << 1_u8) | (1 << 2));
 
-            // Write a 1 to EEPE to write to EEPROM
-            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 1_u8));
+                // Write a 1 to EEPE to write to EEPROM
+                core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 1_u8));
+            } else {
+                panic!();
+            }
         }
     }
 
@@ -83,29 +86,31 @@ impl EEPROM {
 
             // SET UP THE ADDRESS
 
-            // Get the high byte for EEARH
-            let high_byte = (address >> 8) as u8;
+            if address <= 1023 {
+                // Get the high byte for EEARH
+                let high_byte = (address >> 8) as u8;
 
-            // Get the low byte for EEARL
-            let low_byte = address as u8;
+                // Get the low byte for EEARL
+                let low_byte = address as u8;
 
-            let read_eearh = core::ptr::read_volatile(Self::EEARH); // Read EEARH value
-            let read_eecr = core::ptr::read_volatile(Self::EECR); // Read EECR value
+                let read_eecr = core::ptr::read_volatile(Self::EECR); // Read EECR value
 
-            // Write to EEAR High byte
-            core::ptr::write_volatile(Self::EEARH, read_eearh & !(0x42) | high_byte);
+                // Write to EEAR High byte
+                core::ptr::write_volatile(Self::EEARH, high_byte);
 
-            // Write to EEAR Low byte
-            core::ptr::write_volatile(Self::EEARL, low_byte);
+                // Write to EEAR Low byte
+                core::ptr::write_volatile(Self::EEARL, low_byte);
 
-            // Read EEPROM
+                // Read EEPROM
 
-            // Write a 1 to EERE to start EEPROM read
-            core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 0_u8));
+                // Write a 1 to EERE to start EEPROM read
+                core::ptr::write_volatile(Self::EECR, read_eecr | (1 << 0_u8));
 
-            // Return data from EEDR
-            core::ptr::read_volatile(Self::EEDR)
-
+                // Return data from EEDR
+                core::ptr::read_volatile(Self::EEDR)
+            } else {
+                panic!();
+            }
         }
     }
 }
