@@ -11,6 +11,12 @@ pub struct EEPROM {
 static mut EEPROM_TAKEN: bool = false;
 
 impl EEPROM {
+    const EEARH: *mut u8 = 0x42 as *mut u8; // EEPROM Address register high byte
+    const EEARL: *mut u8 = 0x41 as *mut u8; // EEPROM Address register low byte
+    const EEDR: *mut u8 = 0x40 as *mut u8; // EEPROM Data register
+    const EECR: *mut u8 = 0x3F as *mut u8; // EEPROM Control register
+    const SPMCSR: *mut u8 = 0x57 as *mut u8; // Store program memory control and status register
+    
     /// Take ownership of the EEPROM
     pub fn take() -> Option<Self> {
         unsafe {
@@ -23,12 +29,6 @@ impl EEPROM {
             }
         }
     }
-
-    const EEARH: *mut u8 = 0x42 as *mut u8; // EEPROM Address register high byte
-    const EEARL: *mut u8 = 0x41 as *mut u8; // EEPROM Address register low byte
-    const EEDR: *mut u8 = 0x40 as *mut u8; // EEPROM Data register
-    const EECR: *mut u8 = 0x3F as *mut u8; // EEPROM Control register
-    const SPMCSR: *mut u8 = 0x57 as *mut u8; // Store program memory control and status register
 
     /// Method to write an address (value from 0 to 1023) and data (value from 0 to 255) to EEPROM
     pub fn eeprom_write(&self, address: u16, data: u8) {
