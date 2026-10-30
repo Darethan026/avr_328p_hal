@@ -3,21 +3,21 @@
 // Copyright (c) 2026 [Darell Ethan Kiganga]
 // SPDX-License-Identifier: MIT
 
-/// AVR-Atmega328p TWI
+/// AVR-Atmega328p TWI (2-Wire interface) compatible with I2C
 pub struct TWI {
+    address: u8,
     _priv: (),
 }
 
-const TWSR_STATUS_CODES: [u8; 7] = [
-    0x08, // Start condition is transmitted
-    0x10, // Repeat start condition is transmitted
-    0x18, // Slave write has been transmitted, ACK received
-    0x20, // Slave write has been transmitted, NOT ACK has been received
-    0x28, // Data byte has been transmitted, ACK received
-    0x30, // Data byte has been transmitted, NOT ACK received
-    0x38, // Arbitration lost in Slave write or data bytes
+// STATUS CODES
 
-    ];
+// 0x08, // Start condition is transmitted
+// 0x10, // Repeat start condition is transmitted
+// 0x18, // Slave write has been transmitted, ACK received
+// 0x20, // Slave write has been transmitted, NOT ACK has been received
+// 0x28, // Data byte has been transmitted, ACK received
+// 0x30, // Data byte has been transmitted, NOT ACK received
+// 0x38, // Arbitration lost in Slave write or data bytes
 
 static mut TWI_TAKEN: bool = false;
 
@@ -27,11 +27,8 @@ impl TWI {
     const TWCR: *mut u8 = 0xBC as *mut u8; // TWI Control register
     const TWSR: *mut u8 = 0xB9 as *mut u8; // TWI Status register
     const TWDR: *mut u8 = 0xBB as *mut u8; // TWI Data register
-    const TWAR: *mut u8 = 0xBA as *mut u8; // TWI Slave address register
-    const CPU_FREQ: i32 = 16000000; // Frequency of 16Mhz in Hz
-    const SCL_FREQ: i32 = 400000; // TWI Frequency in Hz (400,000Hz or 400kHz)
 
-    /// Take ownership of the EEPROM
+    /// Take ownership of the TWI
     pub fn take() -> Option<Self> {
         unsafe {
             if TWI_TAKEN {
@@ -39,7 +36,12 @@ impl TWI {
             } else {
                 TWI_TAKEN = true;
 
-                Some(TWI { _priv: () })
+                let address_initial = 0x0_u8;
+
+                Some(TWI {
+                    address: address_initial,
+                    _priv: ()
+                })
             }
         }
     }
@@ -50,7 +52,7 @@ impl TWI {
             // Read the PRR (Power reduction register)
             let prr_state = core::ptr::read_volatile(Self::PRR);
 
-            core::ptr::write_volatile(Self::PRR, prr_state & !(1 << 7 as u8));
+            core::ptr::write_volatile(Self::PRR, prr_state & !(1 << 7_u8));
 
             // Set the prescaler bits to max out the speed
             // Prescaler 1, 4, 16 or 64
@@ -93,17 +95,17 @@ impl TWI {
     ///
     /// This function takes an address with its 7 address bits and the Read/Write bit.
     /// # Please Read:
-    /// - There's no need to use the address when it's right shifted by 1. e.g, `0x78`
-    /// (0111 1000) right shifted by one is `0x3C` (0011 1100), since this function takes
-    /// the whole address and does it automatically. You can use `0x78` directly
-    pub fn write_packet(&self, address: u8) {
+    /// - There's no need to use the address when it's right shifted by 1. e.g, `0x78`.
+    /// - (0111 1000) right shifted by one is `0x3C` (0011 1100)
+    /// - Since this function takes the whole address and does it automatically. You can use `0x78` directly
+    pub fn write_packet(&mut self, address: u8) {
         // Packet is 9 bits (Address = 7 bits, 1 Read/Write bit, 1 achnowledge bit)
 
-        let address_bits = address >> 1; // Shift the bits right by 2 to get the address bits
+        self.address = address;
 
         unsafe {
             // Write the slave address write to TWI Data register
-            core::ptr::write_volatile(Self::TWDR, address_bits);
+            core::ptr::write_volatile(Self::TWDR, address);
 
             // Clear the TWINT bit
             core::ptr::write_volatile(Self::TWCR, (1 << 2_u8) | (1 << 7_u8));
@@ -132,7 +134,7 @@ impl TWI {
                     // Check if the status code is the one expected, otherwise panic
                     if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x08 {
                         // Write the slave address write to TWI Data register
-                        core::ptr::write_volatile(Self::TWDR, address_bits);
+                        core::ptr::write_volatile(Self::TWDR, address);
 
                         // Clear the TWINT bit
                         core::ptr::write_volatile(Self::TWCR, (1 << 2_u8) | (1 << 7_u8));
@@ -144,6 +146,7 @@ impl TWI {
 
                         // If status code is expected, break to main loop to load address
                         if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x18 {
+
                             return;
                         }
                     }
@@ -159,7 +162,7 @@ impl TWI {
                     // Check if the status code is the one expected, otherwise panic
                     if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x08 {
                         // Write the slave address write to TWI Data register
-                        core::ptr::write_volatile(Self::TWDR, address_bits);
+                        core::ptr::write_volatile(Self::TWDR, address);
 
                         // Clear the TWINT bit
                         core::ptr::write_volatile(Self::TWCR, (1 << 2_u8) | (1 << 7_u8));
@@ -171,7 +174,8 @@ impl TWI {
 
                         // If status code is expected, break to main loop to load address
                         if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x18 {
-                            break;
+
+                            return;
                         }
                     }
                 }
@@ -182,7 +186,7 @@ impl TWI {
     }
 
     /// Write data bytes after writing the packet
-    pub fn write_command(&self, data: u8) {
+    pub fn write_command(&mut self, data: u8) {
         unsafe {
             if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x18 {
 
@@ -199,8 +203,8 @@ impl TWI {
 
                 // Check if the status code is the one expected, otherwise panic
                 if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
-                    // Stop transmission
-                    self.stop();
+
+                    return;
 
                 } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
                     for _retry in 1..=3 {
@@ -218,8 +222,6 @@ impl TWI {
                         }
 
                         if core::ptr::read_volatile(Self::TWSR) & (0xF8) == 0x28 {
-                            // Stop transmission
-                            self.stop();
 
                             return;
                         }
@@ -234,6 +236,11 @@ impl TWI {
 
                         // Check if the status code is the one expected, otherwise panic
                         if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x08 {
+                            // Send the slave address to set it into master transmitter mode then send the data bytes
+                            self.write_packet(self.address);
+
+                            // Then send the data to slave
+
                             // Write the slave address write to TWI Data register
                             core::ptr::write_volatile(Self::TWDR, data);
 
@@ -247,9 +254,7 @@ impl TWI {
 
                             // If status code is expected, break to main loop to load address
                             if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
-                                // Stop transmission
-                                self.stop();
-
+                                
                                 return;
 
                             } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
@@ -267,8 +272,6 @@ impl TWI {
                                 }
 
                                 if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
-                                    // Stop transmission
-                                    self.stop();
 
                                     return;
                                 }
