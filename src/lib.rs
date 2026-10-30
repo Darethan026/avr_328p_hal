@@ -9,5 +9,5 @@ pub mod usart0;
 pub mod adc;
 pub mod lcd;
 pub mod eeprom;
-pub mod spi;
 pub mod twi;
+pub mod ssd1306;
