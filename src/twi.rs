@@ -116,7 +116,12 @@ impl TWI {
             }
 
             // Check if the status code is the one expected, otherwise panic
-            if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x20 {
+            if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x18 {
+
+                return;
+            }
+
+            else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x20 {
                 for _retry in 1..=3 {
                     // Send a STOP condition followed by a start condition for 3 tries
                     core::ptr::write_volatile(Self::TWCR, (1 << 4_u8) | (1 << 5_u8) | (1 << 7_u8) | (1 << 2_u8));
@@ -186,9 +191,27 @@ impl TWI {
     }
 
     /// Write data bytes after writing the packet
-    pub fn write_command(&mut self, data: u8) {
+    pub fn write_data(&mut self, data: u8) {
         unsafe {
-            if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x18 {
+        // Write data byte to TWDR
+        core::ptr::write_volatile(Self::TWDR, data);
+
+        // Clear the TWINT bit
+        core::ptr::write_volatile(Self::TWCR, (1 << 7_u8) | (1 << 2_u8));
+
+        // Poll TWINT to ensure write is complete
+        while core::ptr::read_volatile(Self::TWCR) & (1 << 7_u8) == 0 {
+            // Wait since to clear it it has to be 1
+        }
+
+        // Check if the status code is the one expected, otherwise panic
+        if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
+
+            return;
+
+        } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
+            for _retry in 1..=3 {
+                // Transmit again and check
 
                 // Write data byte to TWDR
                 core::ptr::write_volatile(Self::TWDR, data);
@@ -201,14 +224,44 @@ impl TWI {
                     // Wait since to clear it it has to be 1
                 }
 
-                // Check if the status code is the one expected, otherwise panic
-                if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
+                if core::ptr::read_volatile(Self::TWSR) & (0xF8) == 0x28 {
 
                     return;
+                }
+            }
 
-                } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
-                    for _retry in 1..=3 {
-                        // Transmit again and check
+            panic!();
+                
+        } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x38 {
+            for _retry in 1..=3 {
+                // Send a START condition
+                self.start();
+
+                // Check if the status code is the one expected, otherwise panic
+                if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x08 {
+                    // Send the slave address to set it into master transmitter mode then send the data bytes
+                    self.write_packet(self.address);
+
+                    // Then send the data to slave
+
+                    // Write the slave address write to TWI Data register
+                    core::ptr::write_volatile(Self::TWDR, data);
+
+                    // Clear the TWINT bit
+                    core::ptr::write_volatile(Self::TWCR, (1 << 2_u8) | (1 << 7_u8));
+
+                    // Check if the job is finished
+                    while core::ptr::read_volatile(Self::TWCR) & (1 << 7_u8) == 0 {
+                        // Wait since to clear it it has to be 1
+                    }
+
+                    // If status code is expected, break to main loop to load address
+                    if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
+                                
+                        return;
+
+                    } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
+                        // Transmit data again
 
                         // Write data byte to TWDR
                         core::ptr::write_volatile(Self::TWDR, data);
@@ -221,69 +274,18 @@ impl TWI {
                             // Wait since to clear it it has to be 1
                         }
 
-                        if core::ptr::read_volatile(Self::TWSR) & (0xF8) == 0x28 {
+                        if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
 
                             return;
                         }
                     }
-
-                    panic!();
-                
-                } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x38 {                    
-                    for _retry in 1..=3 {
-                        // Send a START condition
-                        self.start();
-
-                        // Check if the status code is the one expected, otherwise panic
-                        if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x08 {
-                            // Send the slave address to set it into master transmitter mode then send the data bytes
-                            self.write_packet(self.address);
-
-                            // Then send the data to slave
-
-                            // Write the slave address write to TWI Data register
-                            core::ptr::write_volatile(Self::TWDR, data);
-
-                            // Clear the TWINT bit
-                            core::ptr::write_volatile(Self::TWCR, (1 << 2_u8) | (1 << 7_u8));
-
-                            // Check if the job is finished
-                            while core::ptr::read_volatile(Self::TWCR) & (1 << 7_u8) == 0 {
-                                // Wait since to clear it it has to be 1
-                            }
-
-                            // If status code is expected, break to main loop to load address
-                            if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
-                                
-                                return;
-
-                            } else if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x30 {
-                                // Transmit data again
-
-                                // Write data byte to TWDR
-                                core::ptr::write_volatile(Self::TWDR, data);
-
-                                // Clear the TWINT bit
-                                core::ptr::write_volatile(Self::TWCR, (1 << 7_u8) | (1 << 2_u8));
-
-                                // Poll TWINT to ensure write is complete
-                                while core::ptr::read_volatile(Self::TWCR) & (1 << 7_u8) == 0 {
-                                    // Wait since to clear it it has to be 1
-                                }
-
-                                if (core::ptr::read_volatile(Self::TWSR) & 0xF8) == 0x28 {
-
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    panic!();
                 }
             }
+
+            panic!();
         }
     }
+}
 
     /// Send a STOP condition
     pub fn stop(&self) {
