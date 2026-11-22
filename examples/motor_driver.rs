@@ -21,7 +21,7 @@ pub extern "C" fn main() -> ! {
     portb.set_output(PinB::PB0); // Direction pin one
     portd.set_output(PinD::PD6); // Direction pin 2
 
-    timer1.start();
+    timer1.init();
     timer1.set_fast_pwm(999);
     timer1.set_duty_cycle(60);
     timer1.set_prescaler(Prescaler::Prescaler8);
