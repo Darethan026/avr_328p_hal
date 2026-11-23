@@ -2,6 +2,13 @@
 
 Changes made to the **avr_328p_hal** HAL
 
+## [Version 3.0.1] - 2026-11-22
+
+## Changes
+
+- Fixed code initialising `timer1` in `motor_driver.rs` in `examples/`, from `timer1.start()` to `timer1.init()`
+
+- Corrected a line from `config.yml` on the ISSUE TEMPLATE from `blank_issues_enables: false` to `blank_issues_enabled: false`
 
 ## [Version 3.0.0] - 2026-11-4
 
