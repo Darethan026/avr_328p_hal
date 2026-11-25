@@ -80,7 +80,7 @@ pub extern "C" fn main() -> ! {
     let timer = Timer0::take().unwrap();
 
     portb.set_output(PinB::PB5);
-    timer.start();
+    timer.init();
 
     loop {
         portb.set_high(PinB::PB5);
