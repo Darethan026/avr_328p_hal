@@ -18,7 +18,7 @@ Changes made to the **avr_328p_hal** HAL
 
 - Changed function name `start` to `init` in the modules: `usart0`, `adc`, and `timers`
 
-- Made function `set_frame_format` and `enable_tx_rx` private and instead call them in the `set_baud_rate(u32_val, mode)` function with `self.set_frame_format();` and `self.enable_tx_rx();` repectively, in order to improve ease of use with the USART0 driver. Now to initialise `USART0`, you only need to take ownership of it with `USART0.take().unwrap` or handle the `Option`, and then set your baud rate with: `set_baud_rate(u32_val, mode)` and use `transmit_char(char)` or `print_string(&str)` or `send_16_bytes(u16_val)` or `print_num(u16)` or even `usart_receive()` (which returns a `u8` value).
+- Made function `set_frame_format` and `enable_tx_rx` private and instead call them in the `set_baud_rate(u32_val, mode)` function with `self.set_frame_format();` and `self.enable_tx_rx();` respectively, in order to improve ease of use with the USART0 driver. Now to initialise `USART0`, you only need to take ownership of it with `USART0.take().unwrap` or handle the `Option`, and then set your baud rate with: `set_baud_rate(u32_val, mode)` and use `transmit_char(char)` or `print_string(&str)` or `send_16_bytes(u16_val)` or `print_num(u16)` or even `usart_receive()` (which returns a `u8` value).
 
 - Improved on module documentation
 
